@@ -90,9 +90,9 @@ app.add_middleware(
 # Include API router
 app.include_router(api_router, prefix="/api/v1")
 
-@app.get("/health")
+@app.get("/")
 async def health_check():
-    return {"status": "healthy"}
+    return "healh check is successfull"
 
 if __name__ == "__main__":
     import uvicorn
