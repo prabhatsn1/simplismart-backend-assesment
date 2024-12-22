@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.core import deps, security
 from app.schemas.user import UserCreate, User
 from app.models.user import User as UserModel
+from app.core.security import verify_password, get_password_hash
 
 router = APIRouter()
 
@@ -14,7 +15,7 @@ async def login(
     password: str,
     db: Session = Depends(deps.get_db)
 ):
-       """
+    """
     Login endpoint using session.
     
     Design Decisions:
@@ -28,11 +29,8 @@ async def login(
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
 
-    # Extract hashed_password value
-    hashed_password = user.hashed_password
-
     # Verify password
-    if not verify_password(password, hashed_password):
+    if not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
 
     # Set user_id in session
@@ -55,12 +53,14 @@ async def register(
     - Create the user in the database.
     - Return the user data.
     """
-    # Check if username or email already exists
+    print("inside register PS",user_in)
+     # Check if username or email already exists
     if db.query(UserModel).filter(UserModel.username == user_in.username).first() or db.query(UserModel).filter(UserModel.email == user_in.email).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username or email already registered")
 
     # Hash the password
     hashed_password = get_password_hash(user_in.password)
+    print("hashed password",hashed_password)
 
     # Create the user in the database
     user = UserModel(
@@ -69,6 +69,7 @@ async def register(
         hashed_password=hashed_password,
         is_active=True
     )
+    print("user PS->>>", user)
     db.add(user)
     db.commit()
     db.refresh(user)
