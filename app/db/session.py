@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 # Define connection parameters directly
 USERNAME = "username"
-PASSWORD = "your_password"
+PASSWORD = "password"
 HOST = "localhost"
 PORT = "5432"
 DBNAME = "cluster_management"
